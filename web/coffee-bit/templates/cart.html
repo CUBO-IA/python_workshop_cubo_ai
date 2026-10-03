@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Carrito | Coffee-bit{% endblock %}
+
+{% block content %}
+
+<section class="cart"> <div class="cart-header"> <h1>Tu carrito</h1> <p>Revisa y modifica los productos seleccionados.</p> </div>
+{% if cart and cart.items %}
+    <div class="cart-content">
+        <div class="cart-items">
+            {% for item in cart.items %}
+                <article class="cart-item">
+                    <div class="cart-item-image">
+                        <img
+                            src="{{ url_for('static', filename=item.product.image) }}"
+                            alt="{{ item.product.name }}"
+                        >
+                    </div>
+
+                    <div class="cart-item-info">
+                        <h2>{{ item.product.name }}</h2>
+
+                        <p class="cart-item-price">
+                            Precio unitario:
+                            {{ item.product.price }} SAT
+                        </p>
+
+                        <p class="cart-item-subtotal">
+                            Subtotal:
+                            {{ item.subtotal }} SAT
+                        </p>
+                    </div>
+
+                    <div class="cart-item-actions">
+                        <form
+                            action="{{ url_for('update_cart', product_id=item.product.id) }}"
+                            method="post"
+                            class="quantity-form"
+                        >
+                            <label for="quantity-{{ item.product.id }}">
+                                Cantidad:
+                            </label>
+
+                            <input
+                                type="number"
+                                id="quantity-{{ item.product.id }}"
+                                name="quantity"
+                                value="{{ item.quantity }}"
+                                min="1"
+                                step="1"
+                                required
+                            >
+
+                            <button
+                                type="submit"
+                                class="button button-secondary"
+                            >
+                                Actualizar
+                            </button>
+                        </form>
+
+                        <form
+                            action="{{ url_for('remove_from_cart', product_id=item.product.id) }}"
+                            method="post"
+                        >
+                            <button
+                                type="submit"
+                                class="button button-danger"
+                            >
+                                Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+
+        <aside class="cart-summary">
+            <h2>Resumen</h2>
+
+            <div class="cart-summary-row">
+                <span>Productos</span>
+                <span>{{ cart.items|length }}</span>
+            </div>
+
+            <div class="cart-summary-total">
+                <span>Total</span>
+                <strong>{{ cart.total }} SAT</strong>
+            </div>
+
+            <a
+                href="{{ url_for('checkout') }}"
+                class="button button-primary checkout-button"
+            >
+                Continuar con el pedido
+            </a>
+        </aside>
+    </div>
+{% else %}
+    <div class="empty-cart">
+        <h2>Tu carrito está vacío</h2>
+
+        <p>
+            Todavía no has añadido ningún producto al carrito.
+        </p>
+
+        <a
+            href="{{ url_for('index') }}"
+            class="button button-primary"
+        >
+            Ver catálogo
+        </a>
+    </div>
+{% endif %}
+
+</section> {% endblock %}

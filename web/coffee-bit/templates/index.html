@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Coffee-bit | Catálogo{% endblock %}
+
+{% block content %}
+
+<section class="catalog"> <div class="catalog-header"> <h1>Coffee-bit</h1> <p>Explora nuestro catálogo de café.</p> </div>
+<div class="product-grid">
+    {% for product in products %}
+        <article class="product-card">
+            <a href="{{ url_for('product', product_id=product.id) }}" class="product-image-link">
+                <img
+                    src="{{ url_for('static', filename=product.image) }}"
+                    alt="{{ product.name }}"
+                    class="product-image"
+                >
+            </a>
+
+            <div class="product-info">
+                <h2>{{ product.name }}</h2>
+
+                {% if product.price is defined and product.price is not none %}
+                    <p class="product-price">
+                        {{ product.price }} SAT
+                    </p>
+                {% endif %}
+
+                <div class="product-actions">
+                    <a
+                        href="{{ url_for('product', product_id=product.id) }}"
+                        class="button button-secondary"
+                    >
+                        Ver producto
+                    </a>
+
+                    <form
+                        action="{{ url_for('add_to_cart', product_id=product.id) }}"
+                        method="post"
+                    >
+                        <input type="hidden" name="quantity" value="1">
+
+                        <button type="submit" class="button button-primary">
+                            Añadir al carrito
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </article>
+    {% endfor %}
+</div>
+
+</section> {% endblock %}

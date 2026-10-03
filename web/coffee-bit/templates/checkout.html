@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Finalizar pedido | Coffee-bit{% endblock %}
+
+{% block content %}
+
+<section class="checkout"> <div class="checkout-header"> <h1>Finalizar pedido</h1> <p>Revisa tu pedido antes de continuar.</p> </div>
+{% if cart and cart.items %}
+    <div class="checkout-content">
+        <div class="order-summary">
+            <h2>Resumen del pedido</h2>
+
+            <div class="order-items">
+                {% for item in cart.items %}
+                    <article class="order-item">
+                        <div class="order-item-info">
+                            <h3>{{ item.product.name }}</h3>
+
+                            <p>
+                                Cantidad: {{ item.quantity }}
+                            </p>
+
+                            <p>
+                                Precio unitario:
+                                {{ item.product.price }} SAT
+                            </p>
+                        </div>
+
+                        <div class="order-item-subtotal">
+                            {{ item.subtotal }} SAT
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+
+            <div class="order-total">
+                <span>Total</span>
+                <strong>{{ cart.total }} SAT</strong>
+            </div>
+        </div>
+
+        <div class="checkout-next-step">
+            <h2>Continuar con el pedido</h2>
+
+            <p>
+                El sistema de pago y el proceso definitivo de confirmación
+                todavía no están configurados.
+            </p>
+
+            <p>
+                En esta etapa, puedes revisar el contenido de tu pedido.
+                El método de pago y los datos necesarios para completar
+                la compra se definirán posteriormente.
+            </p>
+
+            <a
+                href="{{ url_for('cart') }}"
+                class="button button-secondary"
+            >
+                Volver al carrito
+            </a>
+        </div>
+    </div>
+{% else %}
+    <div class="empty-cart">
+        <h2>Tu carrito está vacío</h2>
+
+        <p>
+            No hay productos para mostrar en el resumen del pedido.
+        </p>
+
+        <a
+            href="{{ url_for('index') }}"
+            class="button button-primary"
+        >
+            Ver catálogo
+        </a>
+    </div>
+{% endif %}
+
+</section> {% endblock %}
