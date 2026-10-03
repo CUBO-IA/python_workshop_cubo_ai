@@ -19,7 +19,7 @@ Que vas a practicar
 
 Como ejecutarlo
 ----------------
-    python3 string.py
+    python3 strings.py
 
 Ejemplo de ejecucion
 --------------------

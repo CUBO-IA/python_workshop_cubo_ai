@@ -70,12 +70,10 @@ python3 boolean.py
 python3 complex.py
 ```
 
-> **Note:** run them from a directory that is *not* this one. These files are
-> named after types (`string.py`, `list.py`, `set.py`, …), and several of those
-> names shadow standard-library modules. Running a script from inside this
-> folder puts it on `sys.path`, so a stdlib `import string` elsewhere can
-> resolve to [`string.py`](string.py) and re-execute it. See
-> [Related notes](#related-notes).
+> **Note:** you can run these from inside this folder. They are named after
+> types (`strings.py`, `list.py`, `set.py`, …), and the plural on `strings.py`
+> deliberately avoids shadowing the standard-library `string` module — see
+> [Related notes](#related-notes) for why that matters.
 
 ---
 
@@ -250,7 +248,7 @@ processing, Fourier analysis, electrical engineering, and quantum mechanics.
 
 ## Strings (str)
 
-**File:** [`string.py`](string.py)
+**File:** [`strings.py`](strings.py)
 
 An immutable sequence of characters, written in quotes.
 
@@ -488,20 +486,37 @@ if __name__ == "__main__":
 
 ### File naming caveat
 
-Python resolves imports by searching `sys.path`, which includes the directory
-of the script being run. Several filenames here deliberately match data type
-names, and a few of those collide with standard-library modules:
+Python resolves imports by searching `sys.path`, which includes the directory of
+the script being run. A file named after a standard-library module can
+therefore hijack that module.
+
+This originally bit us: [`string.py`](strings.py) was renamed to
+[`strings.py`](strings.py) precisely because of it. The failure mode is
+confusing — the real error surfaces inside a standard-library file and points
+nowhere near your code:
+
+```
+File ".../logging/__init__.py", line 29, in <module>
+  from string import Template
+File ".../console/ejercicios/string.py", line 38, in <module>
+  nombre = input("Escribe tu nombre: ")
+EOFError: EOF when reading a line
+```
+
+A stdlib `import string` loaded our exercise and ran it from top to bottom,
+which then tried to prompt for input.
+
+The current state of this folder:
 
 | This folder | Standard library |
 |---|---|
-| `string.py` | `string` (common string constants) |
+| `strings.py` | *(plural — no collision)* |
 | `list.py` | *(no stdlib module — safe)* |
 | `set.py` | *(no stdlib module — safe)* |
 | `tuple.py` | *(no stdlib module — safe)* |
-| `bool.py` | *(no stdlib module — safe)* |
+| `none.py` | *(no stdlib module — safe)* |
 
-Running anything from inside `data_types/` can therefore cause a stdlib
-`import string` to resolve to [`string.py`](string.py) and execute it. This
-does not break these scripts, but it can break *other* programs run from this
-directory. If that surfaces, rename the file to `strings.py` or run scripts
-from a parent directory.
+No filename here shadows a standard-library module, so scripts in this folder
+are safe to run in place. If you add a file later, prefer a plural or a
+distinct name — and be careful with names like `string.py`, `types.py`,
+`code.py`, `random.py`, or `json.py`.

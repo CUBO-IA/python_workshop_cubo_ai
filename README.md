@@ -52,7 +52,7 @@ elegir tipo.
 | [`integer.py`](data_types/integer.py) | `int` | `42` | Precisión arbitraria, `/` vs `//` |
 | [`float.py`](data_types/float.py) | `float` | `3.14` | El error de `0.1 + 0.2` |
 | [`complex.py`](data_types/complex.py) | `complex` | `3 + 4j` | Parte real e imaginaria, módulo `cmath` |
-| [`string.py`](data_types/string.py) | `str` | `"hola"` | Inmutabilidad, indexado, f-strings |
+| [`strings.py`](data_types/strings.py) | `str` | `"hola"` | Inmutabilidad, indexado, f-strings |
 | [`list.py`](data_types/list.py) | `list` | `[1, 2]` | La colección por defecto, mutable |
 | [`tuple.py`](data_types/tuple.py) | `tuple` | `(1, 2)` | Inmutable y *hashable* |
 | [`dictionary.py`](data_types/dictionary.py) | `dict` | `{"a": 1}` | Claves únicas, `.get()` seguro |
@@ -69,15 +69,11 @@ python3 boolean.py
 
 Los diez están verificados: compilan y se ejecutan sin errores ni advertencias.
 
-> **Importante:** ejecútalos desde **fuera** de la carpeta `data_types/`.
-> Varios archivos se llaman igual que módulos de la biblioteca estándar
-> (por ejemplo `string.py`), y Python puede acabar importando tu archivo en
-> lugar del módulo real. Es la razón por la que los archivos de la tabla
-> anterior están pensados para leerse, no para importarse. El detalle está
-> explicado en [`intro.md`](data_types/intro.md#related-notes).
-
-Si prefieres evitar la colisión de nombres, renombra `string.py` a
-`strings.py`.
+> **Nota:** el plural de `strings.py` es intencionado. El archivo se llama
+> así para no ensombrecer el módulo `string` de la biblioteca estándar, un
+> problema que sí ocurrió aquí. Ningún archivo de `data_types/` colisiona ya,
+> así que puedes ejecutarlos desde dentro de la carpeta. El detalle está en
+> [`intro.md`](data_types/intro.md#related-notes).
 
 ### Ruta de estudio sugerida
 
@@ -85,7 +81,7 @@ Si prefieres evitar la colisión de nombres, renombra `string.py` a
 2. `none.py` y `boolean.py` — la base: ausencia de valor y verdad.
 3. `integer.py` → `float.py` → `complex.py` — la torre numérica, de menor a
    mayor rango.
-4. `string.py` — el tipo más usado en la práctica.
+4. `strings.py` — el tipo más usado en la práctica.
 5. `list.py` → `tuple.py` → `dictionary.py` → `set.py` — las colecciones.
 6. Vuelve a [`intro.md`](data_types/intro.md) y decide tú mismo qué tipo le
    corresponde a cada caso que te encuentres.
@@ -117,7 +113,7 @@ Pide nombre y edad, y responde preguntas de sí/no con variables booleanas de
 nombre legible (`es_menor`, `es_exacto_18`). Practica `if` y el operador
 ternario.
 
-### [`string.py`](console/ejercicios/string.py)
+### [`strings.py`](console/ejercicios/strings.py)
 
 Pide nombre y apellido, y compara las **tres** formas de unirlos: f-string,
 `+` y `"".join()`. Luego aplica `.title()`, `.upper()`, `.lower()` y
@@ -166,13 +162,13 @@ Qué demuestra con datos reales:
 ├── data_types/                  ← referencia de los 10 tipos
 │   ├── intro.md                 ← guía completa y punto de entrada
 │   ├── none.py       boolean.py     integer.py    float.py
-│   ├── complex.py    string.py      list.py       tuple.py
+│   ├── complex.py    strings.py     list.py       tuple.py
 │   └── dictionary.py set.py
 └── console/
     └── ejercicios/              ← 4 ejercicios interactivos
         ├── console_programa.py
         ├── boolean.py
-        ├── string.py
+        ├── strings.py
         └── calculadora_imc.py
 ```
 
@@ -196,13 +192,12 @@ empezar a trabajar en ellas. Git no las versiona mientras no tengan archivos.
 
 Ninguno bloquea el estudio, pero conviene conocerlos:
 
-- **Colisión de nombres con la stdlib.** `data_types/string.py` y
-  `console/ejercicios/string.py` se llaman como el módulo estándar `string`.
-  Al ejecutar un script desde dentro de esas carpetas, un `import string`
-  puede cargar tu archivo y ejecutarlo entero. Se ha observado en la
+- **Colisión de nombres con la stdlib (resuelta).** Los archivos se llamaban
+  `string.py` y chocaban con el módulo estándar `string`. El fallo ocurrió en la
   práctica: el gestor de errores de Python hizo
-  `from string import Template` y acabó ejecutando el ejercicio.
-  Solución: ejecutar desde el directorio padre, o renombrar a `strings.py`.
+  `from string import Template` y acabó ejecutando el ejercicio entero. Ambos
+  se renombraron a `strings.py`, así que hoy no hay colisión y todo se puede
+  ejecutar en su propia carpeta.
 - **El ejemplo OOP de `intro.md` no funciona.** El fragmento heredado sobre
   herencia múltiple lanza `TypeError: D() takes no arguments`. Se conserva sin
   tocar a propósito y está documentado en

@@ -22,7 +22,7 @@ How does it work?
 * Strings are hashable, so they can be dict keys and set members.
 * Triple-quoted strings span multiple lines and are used for docstrings.
 
-Run this file:  python3 string.py
+Run this file:  python3 strings.py
 """
 
 
