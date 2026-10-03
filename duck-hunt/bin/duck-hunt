@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# Lanzador de Duck Hunt.
+#
+# Resuelve la raíz del proyecto a partir de la ubicación de este script y
+# ejecuta run.py con el intérprete del entorno virtual, que es el único que
+# tiene pygame instalado (el Python del sistema es demasiado nuevo para la
+# wheel de pygame).
+
+set -euo pipefail
+
+PROJECT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+VENV_PYTHON="$PROJECT_DIR/.venv/bin/python"
+
+cd "$PROJECT_DIR" || exit 1
+
+if [ -x "$VENV_PYTHON" ]; then
+    exec "$VENV_PYTHON" run.py "$@"
+fi
+
+# Sin venv, run.py intenta el relanzamiento por sí mismo o muestra el error.
+exec python3 run.py "$@"

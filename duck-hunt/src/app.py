@@ -11,23 +11,50 @@ from .config import (
     WINDOW_TITLE,
     WINDOW_WIDTH,
 )
+
 from .game import Game
-from .states import GameState
+
+from .gnome_app import (
+    GnomeApplication,
+)
+
+from .indicator import (
+    DuckHuntIndicator,
+)
+
+from .states import (
+    GameState,
+)
 
 
 class Application:
     """
-    Clase principal de la aplicación.
+    Aplicación principal.
+
+    Pygame:
+        controla el juego.
+
+    GNOME:
+        controla la integración de escritorio.
+
+    AppIndicator:
+        controla el indicador de sistema.
     """
 
     def __init__(self):
 
+        # ==================================================================
+        # Pygame
+        # ==================================================================
+
         pygame.init()
 
-        self.screen = pygame.display.set_mode(
-            (
-                WINDOW_WIDTH,
-                WINDOW_HEIGHT,
+        self.screen = (
+            pygame.display.set_mode(
+                (
+                    WINDOW_WIDTH,
+                    WINDOW_HEIGHT,
+                )
             )
         )
 
@@ -39,13 +66,98 @@ class Application:
 
         self.running = False
 
+        self.visible = True
+
+        self.paused = False
+
+        # ==================================================================
+        # Juego
+        # ==================================================================
+
         self.game = Game()
+
+        # ==================================================================
+        # AppIndicator
+        # ==================================================================
+
+        self.indicator = (
+            DuckHuntIndicator(
+                on_show_game=(
+                    self.show_window
+                ),
+                on_pause_game=(
+                    self.toggle_pause
+                ),
+                on_quit=(
+                    self.quit
+                ),
+            )
+        )
+
+        # ==================================================================
+        # GNOME
+        # ==================================================================
+
+        self.gnome = (
+            GnomeApplication(
+                self
+            )
+        )
+
+        # ==================================================================
+        # Mouse
+        # ==================================================================
 
         if HIDE_MOUSE_CURSOR:
 
             pygame.mouse.set_visible(
                 False
             )
+
+    # ======================================================================
+    # Ventana
+    # ======================================================================
+
+    def show_window(self):
+
+        self.visible = True
+
+        pygame.display.set_mode(
+            (
+                WINDOW_WIDTH,
+                WINDOW_HEIGHT,
+            )
+        )
+
+        pygame.display.set_caption(
+            WINDOW_TITLE
+        )
+
+        pygame.event.post(
+            pygame.event.Event(
+                pygame.USEREVENT
+            )
+        )
+
+    def hide_window(self):
+
+        self.visible = False
+
+        pygame.display.iconify()
+
+    # ======================================================================
+    # Pausa
+    # ======================================================================
+
+    def toggle_pause(self):
+
+        self.paused = (
+            not self.paused
+        )
+
+        self.indicator.set_paused(
+            self.paused
+        )
 
     # ======================================================================
     # Eventos
@@ -59,9 +171,17 @@ class Application:
             # Cerrar ventana
             # --------------------------------------------------------------
 
-            if event.type == pygame.QUIT:
+            if (
+                event.type
+                == pygame.QUIT
+            ):
 
-                self.running = False
+                # No cerramos inmediatamente.
+                #
+                # La aplicación sigue disponible
+                # mediante el AppIndicator.
+
+                self.hide_window()
 
                 continue
 
@@ -74,7 +194,10 @@ class Application:
                 == pygame.MOUSEBUTTONDOWN
             ):
 
-                if event.button == 1:
+                if (
+                    event.button == 1
+                    and not self.paused
+                ):
 
                     self.game.shoot(
                         event.pos
@@ -106,6 +229,32 @@ class Application:
         event,
     ):
 
+        # --------------------------------------------------------------
+        # Pausa global
+        # --------------------------------------------------------------
+
+        if event.key == pygame.K_F10:
+
+            self.toggle_pause()
+
+            return
+
+        # --------------------------------------------------------------
+        # Si está pausado
+        # --------------------------------------------------------------
+
+        if self.paused:
+
+            if event.key == pygame.K_ESCAPE:
+
+                self.show_window()
+
+            return
+
+        # --------------------------------------------------------------
+        # Estado del juego
+        # --------------------------------------------------------------
+
         state = self.game.state
 
         # ==================================================================
@@ -120,7 +269,7 @@ class Application:
 
             elif event.key == pygame.K_ESCAPE:
 
-                self.running = False
+                self.hide_window()
 
             return
 
@@ -184,6 +333,14 @@ class Application:
         delta_time,
     ):
 
+        if self.paused:
+
+            return
+
+        if not self.visible:
+
+            return
+
         self.game.update(
             delta_time
         )
@@ -194,11 +351,23 @@ class Application:
 
     def render(self):
 
+        if not self.visible:
+
+            return
+
         self.game.render(
             self.screen
         )
 
         pygame.display.flip()
+
+    # ======================================================================
+    # Salir
+    # ======================================================================
+
+    def quit(self):
+
+        self.running = False
 
     # ======================================================================
     # Game loop
@@ -207,6 +376,8 @@ class Application:
     def run(self):
 
         self.running = True
+
+        self.indicator.show()
 
         try:
 

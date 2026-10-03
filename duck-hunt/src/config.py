@@ -10,7 +10,14 @@ from pathlib import Path
 # ============================================================================
 
 APP_NAME = "Duck Hunt"
-APP_VERSION = "0.5.0"
+
+APP_VERSION = "0.6.0"
+
+APP_ID = "com.duckhunt.Game"
+
+APP_DESCRIPTION = (
+    "Juego clásico de caza de patos"
+)
 
 
 # ============================================================================
@@ -20,7 +27,16 @@ APP_VERSION = "0.5.0"
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 ASSETS_DIR = PROJECT_ROOT / "assets"
+
 IMAGES_DIR = ASSETS_DIR / "images"
+
+ICONS_DIR = ASSETS_DIR / "icons"
+
+DATA_DIR = PROJECT_ROOT / "data"
+
+ICON_FILE = (
+    ICONS_DIR / "duck-hunt.png"
+)
 
 
 # ============================================================================
@@ -28,6 +44,7 @@ IMAGES_DIR = ASSETS_DIR / "images"
 # ============================================================================
 
 WINDOW_WIDTH = 960
+
 WINDOW_HEIGHT = 720
 
 WINDOW_TITLE = APP_NAME
@@ -44,19 +61,65 @@ FPS = 60
 # Colores
 # ============================================================================
 
-COLOR_SKY = (135, 206, 235)
-COLOR_GROUND = (104, 168, 70)
+COLOR_SKY = (
+    135,
+    206,
+    235,
+)
 
-COLOR_BLACK = (0, 0, 0)
-COLOR_WHITE = (255, 255, 255)
+COLOR_GROUND = (
+    104,
+    168,
+    70,
+)
 
-COLOR_HUD_BACKGROUND = (30, 30, 30)
-COLOR_HUD_TEXT = (255, 255, 255)
+COLOR_BLACK = (
+    0,
+    0,
+    0,
+)
 
-COLOR_MENU_BACKGROUND = (25, 45, 70)
-COLOR_MENU_TITLE = (255, 220, 80)
-COLOR_MENU_TEXT = (255, 255, 255)
-COLOR_MENU_SELECTED = (255, 180, 50)
+COLOR_WHITE = (
+    255,
+    255,
+    255,
+)
+
+COLOR_HUD_BACKGROUND = (
+    30,
+    30,
+    30,
+)
+
+COLOR_HUD_TEXT = (
+    255,
+    255,
+    255,
+)
+
+COLOR_MENU_BACKGROUND = (
+    25,
+    45,
+    70,
+)
+
+COLOR_MENU_TITLE = (
+    255,
+    220,
+    80,
+)
+
+COLOR_MENU_TEXT = (
+    255,
+    255,
+    255,
+)
+
+COLOR_MENU_SELECTED = (
+    255,
+    180,
+    50,
+)
 
 
 # ============================================================================
@@ -72,7 +135,10 @@ HIDE_MOUSE_CURSOR = True
 
 GROUND_HEIGHT = 220
 
-HORIZON_Y = WINDOW_HEIGHT - GROUND_HEIGHT
+HORIZON_Y = (
+    WINDOW_HEIGHT
+    - GROUND_HEIGHT
+)
 
 
 # ============================================================================
@@ -80,19 +146,32 @@ HORIZON_Y = WINDOW_HEIGHT - GROUND_HEIGHT
 # ============================================================================
 
 DUCK_WIDTH = 64
+
 DUCK_HEIGHT = 48
 
 DUCK_START_X = 100
+
 DUCK_START_Y = 250
 
 DUCK_SPEED_X = 220.0
+
 DUCK_SPEED_Y = 120.0
 
 DUCK_MIN_X = 20
-DUCK_MAX_X = WINDOW_WIDTH - DUCK_WIDTH - 20
+
+DUCK_MAX_X = (
+    WINDOW_WIDTH
+    - DUCK_WIDTH
+    - 20
+)
 
 DUCK_MIN_Y = 90
-DUCK_MAX_Y = HORIZON_Y - DUCK_HEIGHT - 20
+
+DUCK_MAX_Y = (
+    HORIZON_Y
+    - DUCK_HEIGHT
+    - 20
+)
 
 
 # ============================================================================
@@ -107,14 +186,18 @@ DUCK_SPRITE_FILES = (
     "duck_fly_3.png",
 )
 
-DUCK_HIT_SPRITE_FILE = "duck_hit.png"
+DUCK_HIT_SPRITE_FILE = (
+    "duck_hit.png"
+)
 
 
 # ============================================================================
 # Punto de mira
 # ============================================================================
 
-CROSSHAIR_FILE = "crosshair.png"
+CROSSHAIR_FILE = (
+    "crosshair.png"
+)
 
 CROSSHAIR_SIZE = 48
 
@@ -167,11 +250,20 @@ MAX_SPEED_MULTIPLIER = 2.0
 # Perro
 # ============================================================================
 
-DOG_IDLE_SPRITE_FILE = "dog_idle.png"
-DOG_HAPPY_SPRITE_FILE = "dog_happy.png"
-DOG_LAUGH_SPRITE_FILE = "dog_laugh.png"
+DOG_IDLE_SPRITE_FILE = (
+    "dog_idle.png"
+)
+
+DOG_HAPPY_SPRITE_FILE = (
+    "dog_happy.png"
+)
+
+DOG_LAUGH_SPRITE_FILE = (
+    "dog_laugh.png"
+)
 
 DOG_WIDTH = 120
+
 DOG_HEIGHT = 140
 
 DOG_X = (
@@ -182,4 +274,35 @@ DOG_X = (
 DOG_Y = (
     HORIZON_Y
     - DOG_HEIGHT
+)
+
+
+# ============================================================================
+# AppIndicator
+# ============================================================================
+
+INDICATOR_ID = (
+    "com.duckhunt.Game"
+)
+
+INDICATOR_ICON_NAME = (
+    "duck-hunt"
+)
+
+INDICATOR_TOOLTIP = (
+    "Duck Hunt"
+)
+
+
+# ============================================================================
+# GNOME
+# ============================================================================
+
+DESKTOP_FILE_NAME = (
+    "com.duckhunt.Game.desktop"
+)
+
+DESKTOP_FILE = (
+    DATA_DIR
+    / DESKTOP_FILE_NAME
 )

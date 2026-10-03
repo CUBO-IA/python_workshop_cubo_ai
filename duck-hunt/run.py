@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Launcher for Duck Hunt.
+"""
+Punto de entrada de Duck Hunt.
 
-If pygame is not importable from the current interpreter, re-exec this file
-with the project's virtual environment interpreter (``.venv``), which has the
-wheels installed. This keeps ``python3 run.py`` working even when the system
-Python is too new for a pygame wheel.
+Si pygame no es importable desde el intérprete actual, este script se
+re-ejecuta con el intérprete del entorno virtual del proyecto (``.venv``),
+que es el que tiene las wheels instaladas. Así ``python3 run.py`` funciona
+aunque el Python del sistema sea demasiado nuevo para una wheel de pygame.
 """
 
 import os
@@ -16,14 +17,15 @@ VENV_PYTHON = os.path.join(ROOT, ".venv", "bin", "python")
 
 
 def _reexec_in_venv():
-    """Restart this script with .venv/bin/python. Returns its exit code."""
+    """Relanza este script con .venv/bin/python. Devuelve su código de salida."""
     if not os.path.isfile(VENV_PYTHON):
-        print(f"Error: pygame is not installed and no virtualenv was found at {VENV_PYTHON}.")
-        print("Create one with:  uv venv --python 3.13 .venv && uv pip install -r requirements.txt")
+        print(f"Error: pygame no está instalado y no se encontró el entorno virtual en {VENV_PYTHON}.")
+        print("Créalo con:  uv venv --python 3.13 .venv && uv pip install -r requirements.txt")
         return 1
 
     env = dict(os.environ)
-    # Avoid an infinite relaunch loop if the venv interpreter is the current one.
+    # Evita un bucle de relanzamiento infinito si el intérprete del venv
+    # ya es el actual.
     env["DUCK_HUNT_NO_REEXEC"] = "1"
     return subprocess.call([VENV_PYTHON, os.path.abspath(__file__)], env=env)
 
@@ -38,8 +40,8 @@ def main():
     from src.app import Application
 
     app = Application()
+
     app.run()
-    return 0
 
 
 if __name__ == "__main__":

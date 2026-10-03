@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Duck Hunt
+Comment=Juego clásico de caza de patos
+Exec=duck-hunt
+Icon=duck-hunt
+Terminal=false
+Type=Application
+Categories=Game;Arcade;
+StartupNotify=true
+StartupWMClass=duck-hunt
