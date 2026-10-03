@@ -15,31 +15,15 @@ from config import Config
 from data.products import PRODUCTS
 
 
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object(Config)
-    CSRFProtect(app)
-
-    @app.context_processor
-    def inject_globals():
-        cart = session.get("cart", {})
-        return {
-            "cart_count": sum(cart.values()),
-            "current_year": datetime.date.today().year,
-        }
-
-    return app
-
-
-app = create_app()
-
-
 def find_product(product_id):
     return next((item for item in PRODUCTS if item["id"] == product_id), None)
 
 
 def build_cart():
     """Normaliza la sesion del carrito para las plantillas.
+
+    Descarta los ids que ya no existen en el catalogo y las cantidades no
+    positivas, de modo que la sesion y lo que ve el usuario nunca discrepen.
 
     La clave es 'lines' y no 'items' porque en Jinja ``cart.items`` resolveria
     al metodo ``dict.items()`` en lugar de a la clave del diccionario.
@@ -66,6 +50,16 @@ def build_cart():
     return {"lines": lines, "total": total}
 
 
+def cart_count():
+    """Unidades visibles del carrito.
+
+    Se deriva de ``build_cart()`` y no de ``sum(session['cart'].values())``
+    porque la sesion puede contener ids obsoletos o cantidades no positivas
+    que el carrito no muestra; sumarlos daria un contador que no cuadra.
+    """
+    return sum(line["quantity"] for line in build_cart()["lines"])
+
+
 def parse_quantity(raw, default=1):
     try:
         quantity = int(raw)
@@ -73,6 +67,24 @@ def parse_quantity(raw, default=1):
         return default
 
     return max(quantity, 0)
+
+
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
+    CSRFProtect(app)
+
+    @app.context_processor
+    def inject_globals():
+        return {
+            "cart_count": cart_count(),
+            "current_year": datetime.date.today().year,
+        }
+
+    return app
+
+
+app = create_app()
 
 
 @app.route("/")
