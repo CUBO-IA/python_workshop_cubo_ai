@@ -227,6 +227,75 @@ main {
     font-weight: 700;
 }
 
+.cart-count[hidden] {
+    display: none;
+}
+
+/* ---------- Botón de menú (responsive) ---------- */
+
+.menu-toggle {
+    display: none;
+    padding: 0.4rem 0.7rem;
+    border: 1px solid rgba(247, 241, 231, 0.35);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--cream);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.menu-toggle:hover {
+    background: var(--coffee);
+}
+
+/* ---------- Mensajes flash ---------- */
+
+.flash-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.flash {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    border-left: 4px solid var(--olive);
+    background: var(--beige-light);
+    color: var(--text);
+}
+
+.flash-success {
+    border-left-color: var(--success);
+}
+
+.flash-error {
+    border-left-color: var(--danger);
+}
+
+/* ---------- Confirmación de pedido ---------- */
+
+.order-confirmation {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 2rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--white);
+    text-align: center;
+}
+
+.order-confirmation h2 {
+    margin-top: 0;
+    color: var(--success);
+}
+
+.order-confirmation .button {
+    margin-top: 1rem;
+}
+
 /* ---------- Hero ---------- */
 
 .hero {
@@ -814,14 +883,29 @@ main {
     .navbar {
         min-height: auto;
         flex-direction: column;
+        align-items: flex-start;
         gap: 0.75rem;
         padding: 1rem 0;
+    }
+
+    .menu-toggle {
+        display: inline-block;
+        align-self: flex-end;
+        margin-top: -2.4rem;
     }
 
     .nav-links {
         width: 100%;
         justify-content: center;
         flex-wrap: wrap;
+    }
+
+    .nav-links:not(.is-open) {
+        display: none;
+    }
+
+    .nav-links.is-open {
+        display: flex;
     }
 
     .hero {

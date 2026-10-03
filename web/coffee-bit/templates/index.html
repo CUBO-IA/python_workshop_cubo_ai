@@ -4,49 +4,56 @@
 
 {% block content %}
 
-<section class="catalog"> <div class="catalog-header"> <h1>Coffee-bit</h1> <p>Explora nuestro catálogo de café.</p> </div>
-<div class="product-grid">
-    {% for product in products %}
-        <article class="product-card">
-            <a href="{{ url_for('product', product_id=product.id) }}" class="product-image-link">
-                <img
-                    src="{{ url_for('static', filename=product.image) }}"
-                    alt="{{ product.name }}"
-                    class="product-image"
-                >
-            </a>
+<section class="catalog">
+    <div class="catalog-header">
+        <h1>Coffee-bit</h1>
+        <p>Explora nuestro catálogo de café.</p>
+    </div>
 
-            <div class="product-info">
-                <h2>{{ product.name }}</h2>
+    <div class="product-grid">
+        {% for product in products %}
+            <article class="product-card">
+                <a href="{{ url_for('product', product_id=product.id) }}" class="product-image-link">
+                    <img
+                        src="{{ url_for('static', filename=product.image) }}"
+                        alt="{{ product.name }}"
+                        class="product-image"
+                        loading="lazy"
+                    >
+                </a>
 
-                {% if product.price is defined and product.price is not none %}
+                <div class="product-info">
+                    <h2>{{ product.name }}</h2>
+
                     <p class="product-price">
-                        {{ product.price }} SAT
+                        {{ product.price_sat }} SAT
                     </p>
-                {% endif %}
 
-                <div class="product-actions">
-                    <a
-                        href="{{ url_for('product', product_id=product.id) }}"
-                        class="button button-secondary"
-                    >
-                        Ver producto
-                    </a>
+                    <div class="product-actions">
+                        <a
+                            href="{{ url_for('product', product_id=product.id) }}"
+                            class="button button-secondary"
+                        >
+                            Ver producto
+                        </a>
 
-                    <form
-                        action="{{ url_for('add_to_cart', product_id=product.id) }}"
-                        method="post"
-                    >
-                        <input type="hidden" name="quantity" value="1">
+                        <form
+                            action="{{ url_for('add_to_cart', product_id=product.id) }}"
+                            method="post"
+                        >
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="quantity" value="1">
 
-                        <button type="submit" class="button button-primary">
-                            Añadir al carrito
-                        </button>
-                    </form>
+                            <button type="submit" class="button button-primary">
+                                Añadir al carrito
+                            </button>
+                        </form>
+                    </div>
                 </div>
-            </div>
-        </article>
-    {% endfor %}
-</div>
+            </article>
+        {% endfor %}
+    </div>
 
-</section> {% endblock %}
+</section>
+
+{% endblock %}

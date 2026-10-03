@@ -4,78 +4,117 @@
 
 {% block content %}
 
-<section class="checkout"> <div class="checkout-header"> <h1>Finalizar pedido</h1> <p>Revisa tu pedido antes de continuar.</p> </div>
-{% if cart and cart.items %}
-    <div class="checkout-content">
-        <div class="order-summary">
-            <h2>Resumen del pedido</h2>
+<section class="checkout">
+    <div class="checkout-header">
+        <h1>Finalizar pedido</h1>
+        <p>Revisa tu pedido antes de continuar.</p>
+    </div>
 
-            <div class="order-items">
-                {% for item in cart.items %}
-                    <article class="order-item">
-                        <div class="order-item-info">
-                            <h3>{{ item.product.name }}</h3>
-
-                            <p>
-                                Cantidad: {{ item.quantity }}
-                            </p>
-
-                            <p>
-                                Precio unitario:
-                                {{ item.product.price }} SAT
-                            </p>
-                        </div>
-
-                        <div class="order-item-subtotal">
-                            {{ item.subtotal }} SAT
-                        </div>
-                    </article>
-                {% endfor %}
-            </div>
-
-            <div class="order-total">
-                <span>Total</span>
-                <strong>{{ cart.total }} SAT</strong>
-            </div>
-        </div>
-
-        <div class="checkout-next-step">
-            <h2>Continuar con el pedido</h2>
+    {% if order_completed %}
+        <div class="order-confirmation">
+            <h2>¡Pedido confirmado!</h2>
 
             <p>
-                El sistema de pago y el proceso definitivo de confirmación
-                todavía no están configurados.
+                Gracias por tu compra. Tu pedido por un total de
+                <strong>{{ order_total }} SAT</strong> ha sido registrado.
             </p>
 
             <p>
-                En esta etapa, puedes revisar el contenido de tu pedido.
-                El método de pago y los datos necesarios para completar
-                la compra se definirán posteriormente.
+                El pago y la confirmación definitiva se configuraran
+                posteriormente. Tu carrito ha sido vaciado.
             </p>
 
             <a
-                href="{{ url_for('cart') }}"
-                class="button button-secondary"
+                href="{{ url_for('index') }}"
+                class="button button-primary"
             >
-                Volver al carrito
+                Volver al catálogo
             </a>
         </div>
-    </div>
-{% else %}
-    <div class="empty-cart">
-        <h2>Tu carrito está vacío</h2>
+    {% elif cart.lines %}
+        <div class="checkout-content">
+            <div class="order-summary">
+                <h2>Resumen del pedido</h2>
 
-        <p>
-            No hay productos para mostrar en el resumen del pedido.
-        </p>
+                <div class="order-items">
+                    {% for item in cart.lines %}
+                        <article class="order-item">
+                            <div class="order-item-info">
+                                <h3>{{ item.product.name }}</h3>
 
-        <a
-            href="{{ url_for('index') }}"
-            class="button button-primary"
-        >
-            Ver catálogo
-        </a>
-    </div>
-{% endif %}
+                                <p>
+                                    Cantidad: {{ item.quantity }}
+                                </p>
 
-</section> {% endblock %}
+                                <p>
+                                    Precio unitario:
+                                    {{ item.product.price_sat }} SAT
+                                </p>
+                            </div>
+
+                            <div class="order-item-subtotal">
+                                {{ item.subtotal }} SAT
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+
+                <div class="order-total">
+                    <span>Total</span>
+                    <strong>{{ cart.total }} SAT</strong>
+                </div>
+            </div>
+
+            <div class="checkout-next-step">
+                <h2>Confirmar pedido</h2>
+
+                <p>
+                    El sistema de pago todavia no esta configurado.
+                    Al confirmar, tu carrito se vaciara y el pedido
+                    quedara registrado a nombre de la sesion actual.
+                </p>
+
+                <form
+                    action="{{ url_for('checkout') }}"
+                    method="post"
+                    class="checkout-form"
+                >
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <button
+                        type="submit"
+                        class="button button-primary"
+                        data-confirm="¿Confirmar el pedido y vaciar el carrito?"
+                    >
+                        Confirmar pedido
+                    </button>
+                </form>
+
+                <a
+                    href="{{ url_for('cart') }}"
+                    class="button button-secondary"
+                >
+                    Volver al carrito
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-cart">
+            <h2>Tu carrito está vacío</h2>
+
+            <p>
+                No hay productos para mostrar en el resumen del pedido.
+            </p>
+
+            <a
+                href="{{ url_for('index') }}"
+                class="button button-primary"
+            >
+                Ver catálogo
+            </a>
+        </div>
+    {% endif %}
+
+</section>
+
+{% endblock %}

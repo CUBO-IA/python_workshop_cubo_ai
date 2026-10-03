@@ -4,52 +4,59 @@
 
 {% block content %}
 
-<section class="product-detail"> <div class="product-detail-image"> <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}" > </div>
-<div class="product-detail-info">
-    <h1>{{ product.name }}</h1>
+<section class="product-detail">
+    <div class="product-detail-image">
+        <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}">
+    </div>
 
-    {% if product.description %}
-        <p class="product-description">
-            {{ product.description }}
-        </p>
-    {% endif %}
+    <div class="product-detail-info">
+        <h1>{{ product.name }}</h1>
 
-    {% if product.price is defined and product.price is not none %}
+        {% if product.description %}
+            <p class="product-description">
+                {{ product.description }}
+            </p>
+        {% endif %}
+
         <p class="product-price">
-            {{ product.price }} SAT
+            {{ product.price_sat }} SAT
         </p>
-    {% endif %}
 
-    <form
-        action="{{ url_for('add_to_cart', product_id=product.id) }}"
-        method="post"
-        class="add-to-cart-form"
-    >
-        <div class="quantity-selector">
-            <label for="quantity">Cantidad:</label>
+        <form
+            action="{{ url_for('add_to_cart', product_id=product.id) }}"
+            method="post"
+            class="add-to-cart-form"
+        >
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-            <input
-                type="number"
-                id="quantity"
-                name="quantity"
-                value="1"
-                min="1"
-                step="1"
-                required
-            >
-        </div>
+            <div class="quantity-selector">
+                <label for="quantity">Cantidad:</label>
 
-        <button type="submit" class="button button-primary">
-            Añadir al carrito
-        </button>
-    </form>
+                <input
+                    type="number"
+                    id="quantity"
+                    name="quantity"
+                    value="1"
+                    min="1"
+                    step="1"
+                    data-quantity
+                    required
+                >
+            </div>
 
-    <a
-        href="{{ url_for('index') }}"
-        class="back-link"
-    >
-        ← Volver al catálogo
-    </a>
-</div>
+            <button type="submit" class="button button-primary">
+                Añadir al carrito
+            </button>
+        </form>
 
-</section> {% endblock %}
+        <a
+            href="{{ url_for('index') }}"
+            class="back-link"
+        >
+            ← Volver al catálogo
+        </a>
+    </div>
+
+</section>
+
+{% endblock %}

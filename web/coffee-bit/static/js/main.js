@@ -21,37 +21,54 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Actualizar visualmente cantidades sin asumir lógica de carrito.
-  document.querySelectorAll("[data-quantity]").forEach((input) => {
-    const update = () => {
-      const value = Math.max(1, parseInt(input.value, 10) || 1);
-      input.value = value;
-    };
+  // Evitar cantidades invalidas en los inputs numericos.
+  const normalizeQuantity = (input) => {
+    const value = Math.max(1, parseInt(input.value, 10) || 1);
+    input.value = value;
+    return value;
+  };
 
-    input.addEventListener("change", update);
+  const quantityInputs = document.querySelectorAll("[data-quantity]");
+  quantityInputs.forEach((input) => {
+    input.addEventListener("change", () => normalizeQuantity(input));
   });
 
-  // Actualizar indicadores visuales del carrito a partir del DOM.
-  const updateCartIndicators = () => {
-    const countElement = document.querySelector("[data-cart-count]");
-    const cartItems = document.querySelectorAll("[data-cart-item]");
+  // Contador del carrito en el encabezado.
+  const cartLink = document.querySelector(".cart-link");
+  const cartItems = document.querySelectorAll("[data-cart-item]");
 
-    if (countElement && cartItems.length) {
+  if (cartLink) {
+    let countElement = document.querySelector("[data-cart-count]");
+
+    if (!countElement) {
+      countElement = document.createElement("span");
+      countElement.className = "cart-count";
+      countElement.setAttribute("data-cart-count", "");
+      countElement.hidden = true;
+      cartLink.appendChild(countElement);
+    }
+
+    const updateCartCount = () => {
+      // Solo el carrito detailed conoce las cantidades reales.
+      if (!cartItems.length) {
+        return;
+      }
+
       let count = 0;
 
       cartItems.forEach((item) => {
-        const quantity = item.querySelector("[data-quantity]");
-        count += parseInt(quantity?.value, 10) || 0;
+        const input = item.querySelector("[data-quantity]");
+        count += parseInt(input?.value, 10) || 0;
       });
 
       countElement.textContent = count;
       countElement.hidden = count === 0;
-    }
-  };
+    };
 
-  updateCartIndicators();
+    quantityInputs.forEach((input) => {
+      input.addEventListener("change", updateCartCount);
+    });
 
-  document.querySelectorAll("[data-quantity]").forEach((input) => {
-    input.addEventListener("change", updateCartIndicators);
-  });
+    updateCartCount();
+  }
 });
