@@ -1,23 +1,29 @@
 # python_workshop_cubo_ai
 
-Material de taller para aprender los **tipos de datos de Python desde cero**.
+Material de taller para aprender los **tipos de datos de Python desde cero**,
+y dos proyectos construidos con lo aprendido.
 
-El repositorio tiene dos partes independientes, pensadas para distintos
-momentos del aprendizaje:
+El repositorio tiene cuatro partes independientes:
 
 | Carpeta | Qué es | Cómo se estudia |
 |---|---|---|
 | [`data_types/`](data_types) | Referencia de los 10 tipos de datos | Lectura + ejecutar y comparar la salida |
 | [`console/ejercicios/`](console/ejercicios) | 4 ejercicios guiados | Escribir código y ejecutarlo en la terminal |
+| [`web/coffee-bit/`](web/coffee-bit) | Tienda de café en Flask | Ejecutar y usar la web |
+| [`duck-hunt/`](duck-hunt) | Juego de pygame | Ejecutar y jugar |
 
-No son dos redes de apoyo: los ejercicios asumen que ya conoces los tipos, y
-la referencia de tipos cubre la teoría que los ejercicios dan por sabida.
+Las dos primeras forman el taller y son una continuación natural: los
+ejercicios asumen que ya conoces los tipos, y la referencia de tipos cubre la
+teoría que los ejercicios dan por sabida. Las dos últimas son proyectos
+independientes: no dependen del taller ni entre sí, y cada una tiene su propio
+entorno virtual y sus propias dependencias.
 
 ---
 
 ## Requisitos
 
-Solo hace falta Python 3. No hay dependencias externas que instalar.
+Para el taller solo hace falta Python 3. No hay dependencias externas que
+instalar.
 
 ```bash
 python3 --version      # debe ser 3.x
@@ -25,6 +31,14 @@ python3 --version      # debe ser 3.x
 
 Probado con **Python 3.14**. Los scripts usan funciones disponibles desde
 Python 3.6, así que deberían funcionar en cualquier 3 moderno.
+
+Los dos proyectos sí necesitan dependencias, y cada uno tiene su propia sección
+más abajo con la instalación exacta. En resumen:
+
+| Proyecto | Python | Dependencias |
+|---|---|---|
+| `web/coffee-bit/` | 3.10+ | Flask, Flask-WTF |
+| `duck-hunt/` | 3.13 recomendado | pygame |
 
 ---
 
@@ -153,6 +167,205 @@ Qué demuestra con datos reales:
 
 ---
 
+## Parte 3 — Coffee-bit (tienda web en Flask)
+
+Tienda de café con catálogo, carrito con sesión y finalización de pedido.
+Catálogo de 4 productos, cada uno con su detalle, su precio y su imagen.
+
+### Instalación
+
+```bash
+cd web/coffee-bit
+python3 -m venv .venv
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### Ejecución
+
+```bash
+python app.py
+```
+
+La tienda queda disponible en **<http://127.0.0.1:5808>**.
+
+> Ojo con el puerto: `app.py` arranca en el **5808**. El puerto se fijó a mano
+> en la llamada a `app.run()` (`app.py:183`), así que no cambia con
+> `FLASK_ENV`. Si el 5808 está ocupado, edita esa línea.
+
+### Variables de entorno
+
+| Variable | Obligatoria | Descripción |
+| --- | --- | --- |
+| `SECRET_KEY` | Solo fuera de `development` | Clave de firma de la sesión. |
+| `FLASK_ENV` | No (`development`) | Si no es `development`, exige `SECRET_KEY`. |
+
+Para arrancar fuera de desarrollo:
+
+```bash
+export FLASK_ENV=production
+export SECRET_KEY="una-clave-larga-y-aleatoria"
+python app.py
+```
+
+Si `SECRET_KEY` falta en producción, la aplicación falla al importar
+`config.py` en lugar de usar una clave de desarrollo.
+
+### Rutas
+
+| Ruta | Métodos | Descripción |
+| --- | --- | --- |
+| `/` | GET | Catálogo |
+| `/producto/<product_id>` | GET | Detalle de producto (slug) |
+| `/carrito` | GET | Ver carrito |
+| `/carrito/agregar/<product_id>` | POST | Añadir unidades al carrito |
+| `/carrito/actualizar/<product_id>` | POST | Fijar cantidad (0 elimina) |
+| `/carrito/eliminar/<product_id>` | POST | Quitar un producto del carrito |
+| `/checkout` | GET, POST | Resumen y confirmación del pedido |
+
+### Detalles que conviene conocer antes de tocarla
+
+- Los identificadores de producto son slugs de texto (`semilla-tostada`), por
+  eso las rutas usan `<string:product_id>` y no `<int:...>`.
+- El carrito vive en `session["cart"]` como un diccionario `{slug: cantidad}`.
+- `build_cart()` devuelve `{"lines": [...], "total": n}`. La clave es `lines` y
+  no `items` porque en Jinja `cart.items` resolvería al método `dict.items()`
+  en vez de a la clave.
+- Todos los formularios POST incluyen `csrf_token` y la aplicación tiene
+  `CSRFProtect` activo. Si pruebas las rutas con `curl`, tienes que extraer el
+  token de la página antes del POST o recibirás un 400.
+- `add_to_cart` respeta la cantidad enviada por el formulario; `update_cart`
+  fija la cantidad absoluta y elimina si es 0.
+- **El pago no está implementado:** confirmar el pedido vacía el carrito y
+  muestra el total registrado. No hay pasarela, ni persistencia de pedidos, ni
+  control de stock.
+
+El detalle completo está en [`web/coffee-bit/README.md`](web/coffee-bit/README.md).
+
+---
+
+## Parte 4 — Duck Hunt (juego en pygame)
+
+Recreación del clásico de NES: los patos cruzan la pantalla y hay que
+eliminarlos antes de que escapen. Cada ronda exige **3 aciertos de 5 patos**,
+y los patos vuelan cada vez más rápido.
+
+### Características
+
+- Ventana de 960×720 a 60 FPS. Los patos usan sprites animados y el perro se
+  dibuja por código (ver "Assets ausentes" más abajo).
+- Perder la ronda por fallar ya es parte del juego: el perro se ríe.
+- Puntuación de 100 por pato, y mejores puntuaciones en
+  `data/high_scores.json`.
+- Integración con GNOME: ventana, pausa y salida desde el ciclo de vida de GTK.
+- Indicador en la bandeja del sistema con mostrar, pausar y salir.
+
+### Instalación
+
+El juego usa **pygame**, y su wheel no compila contra las versiones más
+recientes de Python. Lo más seguro es fijar la versión:
+
+```bash
+cd duck-hunt
+uv venv --python 3.13 .venv
+uv pip install -r requirements.txt
+```
+
+Con `python3 -m venv` también funciona, siempre que el intérprete sea 3.13:
+
+```bash
+python3.13 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+```
+
+### Ejecución
+
+```bash
+./bin/duck-hunt
+```
+
+O directamente, si el entorno ya está activo:
+
+```bash
+python run.py
+```
+
+También hay un lanzador de escritorio en
+`data/com.duckhunt.Game.desktop`, por si prefieres abrirlo desde el menú de
+aplicaciones.
+
+> **Por qué existe el lanzador.** Si ejecutas `python3 run.py` con el Python
+> del sistema y pygame no se puede importar, `run.py` se relanza solo con
+> `.venv/bin/python`, que es el único intérprete con la wheel instalada. Si
+> tampoco existe ese `.venv`, el error te dice exactamente qué comando ejecutar.
+> `bin/duck-hunt` hace lo mismo desde bash, pero como punto de entrada único.
+
+### Controles
+
+| Acción | Tecla / ratón |
+| --- | --- |
+| Dispara | Clic izquierdo |
+| Empezar partida / siguiente ronda | `Enter` |
+| Volver al menú | `Esc` |
+| Minimizar a la bandeja | `Esc` en el menú, o cerrar la ventana |
+| Pausa | `F10` |
+| Mostrar / salir desde la bandeja | Menú del indicador |
+
+> El cursor del ratón se oculta (`HIDE_MOUSE_CURSOR`), porque la mira es un
+> crosshair dibujado en pantalla. Cierra la ventana y el juego **no** termina:
+> se minimiza y sigue vivo en la bandeja. Para salir de verdad, usa `Quit` en
+> el indicador.
+
+### Estructura
+
+```
+run.py                      Punto de entrada; relanza en el venv si hace falta
+bin/duck-hunt               Lanzador en bash
+src/app.py                  Ventana, bucle principal, teclado y ratón
+src/game.py                 Reglas: rondas, puntuación y estados
+src/config.py               Todas las constantes (tamaño, tiempos, rondas)
+src/entities/               duck.py, dog.py, bullet.py
+src/screens/                menu.py, game_screen.py, round_complete.py, game_over.py
+src/ui/                     crosshair.py, hud.py, screens.py
+src/audio/sound_manager.py  Carga y reproducción de sonidos
+src/gnome_app.py            Integración con el ciclo de vida de GTK
+src/indicator.py            Indicador de bandeja (AppIndicator)
+src/system/                 app_indicator.py, desktop_entry.py
+assets/                     Imágenes, sonidos, fuente e icono
+data/high_scores.json       Mejores puntuaciones
+```
+
+### Integración con GNOME: opcional a propósito
+
+`gi` (PyGObject) solo está disponible para el intérprete del sistema, no para
+el `.venv` del proyecto, que es el que tiene pygame. Por eso tanto
+`gnome_app.py` como `indicator.py` envuelven sus imports en `try/except`:
+**sin PyGObject el juego funciona igual**, solo se pierde la integración con
+el ciclo de vida de GTK y el icono de la bandeja.
+
+Es un límite real de la plataforma, no un descuido: pygame necesita el venv y
+GTK necesita el intérprete del sistema, y no se pueden compartir.
+
+### Assets ausentes
+
+`config.py` pide tres sprites del perro: `dog_idle.png`, `dog_happy.png` y
+`dog_laugh.png`. **Ninguno está en `assets/images/`.** El juego no falla por
+ello: `entities/dog.py` cae en un *fallback* que dibuja el perro con elipses y
+polígonos de pygame, un color distinto para cada estado (inactivo, feliz y
+riéndose). Se ve, pero es un perro de formas geométricas.
+
+Lo raro es que `assets/images/dog.png` **sí existe** y no lo referencia nada
+en `src/`. Probablemente el sprite que falta se debería generar a partir de
+ese archivo. Hasta que se cree, el perro se ve provisional.
+
+### Pruebas
+
+Hay dos archivos en `tests/`, pero están **vacíos**: no hay nada que ejecutar
+todavía. Los módulos se importan bien y la aplicación se construye sin errores
+con pygame 2.6.1.
+
+---
+
 ## Estructura del repositorio
 
 ```
@@ -164,16 +377,33 @@ Qué demuestra con datos reales:
 │   ├── none.py       boolean.py     integer.py    float.py
 │   ├── complex.py    strings.py     list.py       tuple.py
 │   └── dictionary.py set.py
-└── console/
-    └── ejercicios/              ← 4 ejercicios interactivos
-        ├── console_programa.py
-        ├── boolean.py
-        ├── strings.py
-        └── calculadora_imc.py
+├── console/
+│   └── ejercicios/              ← 4 ejercicios interactivos
+│       ├── console_programa.py
+│       ├── boolean.py
+│       ├── strings.py
+│       └── calculadora_imc.py
+├── web/
+│   └── coffee-bit/              ← tienda en Flask
+│       ├── app.py               ← rutas, carrito y checkout
+│       ├── config.py            ← configuración por entorno
+│       ├── requirements.txt
+│       ├── data/products.py     ← catálogo
+│       ├── templates/           ← Jinja (base, index, product, cart, checkout, 404)
+│       └── static/              ← css, js e imágenes
+├── duck-hunt/                   ← juego en pygame
+│   ├── run.py                   ← punto de entrada
+│   ├── bin/duck-hunt            ← lanzador
+│   ├── requirements.txt
+│   ├── src/                     ← app, game, entities, screens, ui, audio, system
+│   ├── assets/                  ← imágenes, sonidos, fuente e icono
+│   ├── data/high_scores.json
+│   └── tests/                   ← test_duck.py, test_game.py (vacíos)
+└── desktop/                     ← andamiaje de scripts de creación
+    └── create_project.py
 ```
 
-Las carpetas `desktop/` y `web/` están vacías y se crean automáticamente al
-empezar a trabajar en ellas. Git no las versiona mientras no tengan archivos.
+Cada entorno virtual (`.venv/`) es local de la máquina y no se versiona.
 
 ---
 
@@ -205,3 +435,20 @@ Ninguno bloquea el estudio, pero conviene conocerlos:
 - **Los ejercicios de consola no se pueden probar con `</dev/null`.** Terminan
   con `EOFError`, porque `input()` no encuentra nada que leer. Es el
   comportamiento esperado, no un fallo del ejercicio.
+- **Los tests de Duck Hunt están vacíos.** `tests/test_duck.py` y
+  `tests/test_game.py` existen pero no tienen una sola línea. pytest tampoco
+  está en `requirements.txt`, así que `pytest tests` falla con
+  `No module named pytest`.
+- **El puerto 5808 de Coffee-bit está fijado en el código.** No viene de una
+  variable de entorno, así que cambiarlo exige editar `app.py:183`. Ojo: el
+  README de esa subcarpeta todavía menciona el puerto antiguo 5707.
+- **`duck-hunt/README.md` está vacío.** El juego se documenta solo aquí, en el
+  README raíz.
+- **Faltan los tres sprites del perro en Duck Hunt** (`dog_idle.png`,
+  `dog_happy.png`, `dog_laugh.png`). No rompen el juego porque `dog.py` genera
+  un *fallback* dibujado por código, pero el perro no se ve como se espera.
+  `assets/images/dog.png` existe y está sin usar.
+- **Duck Hunt necesita GTK del sistema y pygame del venv, y no conviven.**
+  PyGObject solo existe para el intérprete del sistema, así que la integración
+  con la bandeja y con el ciclo de vida de GNOME es opcional por diseño: el
+  juego arranca igual sin ella, solo sin icono de bandeja.
