@@ -1,11 +1,14 @@
 """
 Pantallas de Duck Hunt.
+
+Menú, resumen de ronda y fin de partida. Las tres comparten el mismo fondo
+azul y el mismo estilo de texto con sombra dura.
 """
 
 import pygame
 
 from ..config import (
-    COLOR_BLACK,
+    COLOR_GAME_OVER,
     COLOR_MENU_BACKGROUND,
     COLOR_MENU_SELECTED,
     COLOR_MENU_TEXT,
@@ -14,47 +17,42 @@ from ..config import (
     WINDOW_WIDTH,
 )
 
+from ..sprites import load_image
+
+from .fonts import (
+    huge_font,
+    large_font,
+    medium_font,
+    small_font,
+)
+
+from .text import draw_text_centered
+
 
 class ScreenRenderer:
-    """
-    Renderiza las pantallas que no pertenecen directamente
-    al gameplay.
-    """
+    """Renderiza las pantallas que no pertenecen al gameplay."""
 
     def __init__(self):
+        """Prepara fuentes y logo."""
 
-        self.title_font = pygame.font.Font(
-            None,
-            72,
-        )
+        self.title_font = huge_font()
 
-        self.large_font = pygame.font.Font(
-            None,
-            48,
-        )
+        self.large_font = large_font()
 
-        self.font = pygame.font.Font(
-            None,
-            32,
-        )
+        self.font = medium_font()
 
-        self.small_font = pygame.font.Font(
-            None,
-            24,
-        )
+        self.small_font = small_font()
+
+        self.logo = load_image("logo.png")
 
     # ======================================================================
     # Fondo
     # ======================================================================
 
-    def draw_background(
-        self,
-        surface,
-    ):
+    def draw_background(self, surface):
+        """Pinta el fondo azul plano de los menús."""
 
-        surface.fill(
-            COLOR_MENU_BACKGROUND
-        )
+        surface.fill(COLOR_MENU_BACKGROUND)
 
     # ======================================================================
     # Menú
@@ -63,83 +61,118 @@ class ScreenRenderer:
     def draw_menu(
         self,
         surface,
-        selected_option=0,
+        selected_index=0,
+        high_scores=None,
+        options=("JUGAR", "SALIR"),
     ):
+        """Menú principal con el logo, las opciones y la tabla de récords."""
 
-        self.draw_background(
-            surface
-        )
+        self.draw_background(surface)
 
-        # --------------------------------------------------------------
-        # Título
-        # --------------------------------------------------------------
+        center_x = WINDOW_WIDTH // 2
 
-        self._center_text(
-            surface,
-            "DUCK HUNT",
-            self.title_font,
-            COLOR_MENU_TITLE,
-            150,
-        )
+        if self.logo is not None:
 
-        # --------------------------------------------------------------
-        # Opciones
-        # --------------------------------------------------------------
+            surface.blit(
+                self.logo,
+                self.logo.get_rect(
+                    center=(
+                        center_x,
+                        150,
+                    )
+                ),
+            )
 
-        options = [
-            "JUGAR",
-            "SALIR",
-        ]
+        else:
+
+            draw_text_centered(
+                surface,
+                "DUCK HUNT",
+                150,
+                COLOR_MENU_TITLE,
+                font=self.title_font,
+            )
 
         start_y = 330
 
-        for index, option in enumerate(
-            options
-        ):
+        for index, option in enumerate(options):
+
+            selected = index == selected_index
 
             color = (
                 COLOR_MENU_SELECTED
-                if index == selected_option
+                if selected
                 else COLOR_MENU_TEXT
             )
 
             prefix = (
                 "> "
-                if index == selected_option
+                if selected
                 else "  "
             )
 
-            self._center_text(
+            draw_text_centered(
                 surface,
                 prefix + option,
-                self.font,
+                start_y + index * 52,
                 color,
-                start_y
-                + index * 60,
+                font=self.font,
             )
 
-        # --------------------------------------------------------------
-        # Instrucciones
-        # --------------------------------------------------------------
-
-        self._center_text(
+        self._draw_high_scores(
             surface,
-            "↑ ↓ para seleccionar",
-            self.small_font,
-            COLOR_MENU_TEXT,
-            550,
+            high_scores,
         )
 
-        self._center_text(
+        draw_text_centered(
             surface,
-            "ENTER para confirmar",
-            self.small_font,
+            "FLECHAS PARA ELEGIR   ENTER PARA EMPEZAR",
+            WINDOW_HEIGHT - 46,
             COLOR_MENU_TEXT,
-            585,
+            font=self.small_font,
         )
+
+        draw_text_centered(
+            surface,
+            "RATON PARA DISPARAR   ESC PARA VOLVER",
+            WINDOW_HEIGHT - 20,
+            (150, 165, 185),
+            font=self.small_font,
+        )
+
+    def _draw_high_scores(
+        self,
+        surface,
+        high_scores,
+    ):
+        """Tabla de los cinco mejores resultados."""
+
+        entries = list(high_scores or [])[:5]
+
+        if not entries:
+
+            return
+
+        draw_text_centered(
+            surface,
+            "MEJORES PUNTUACIONES",
+            470,
+            COLOR_MENU_TITLE,
+            font=self.small_font,
+        )
+
+        for index, entry in enumerate(entries):
+
+            draw_text_centered(
+                surface,
+                f"{index + 1}. {entry['score']:06d}",
+                506 + index * 26,
+                COLOR_MENU_TEXT,
+                font=self.small_font,
+            )
 
     # ======================================================================
-    # Ronda completada
+    # Fin de ronda
     # ======================================================================
 
     def draw_round_complete(
@@ -148,50 +181,52 @@ class ScreenRenderer:
         round_number,
         score,
         ducks_hit,
+        bonus=0,
     ):
+        """Resumen de una ronda superada."""
 
-        self.draw_background(
-            surface
-        )
+        self.draw_background(surface)
 
-        self._center_text(
+        draw_text_centered(
             surface,
             "RONDA COMPLETADA",
-            self.large_font,
+            180,
             COLOR_MENU_TITLE,
-            170,
+            font=self.large_font,
         )
 
-        self._center_text(
+        draw_text_centered(
             surface,
-            f"RONDA {round_number}",
-            self.font,
-            COLOR_MENU_TEXT,
+            f"RONDA {round_number}   PATOS {ducks_hit}",
             270,
+            COLOR_MENU_TEXT,
+            font=self.font,
         )
 
-        self._center_text(
+        draw_text_centered(
             surface,
-            f"PATOS: {ducks_hit}",
-            self.font,
-            COLOR_MENU_TEXT,
+            f"PUNTOS {score:06d}",
             320,
-        )
-
-        self._center_text(
-            surface,
-            f"SCORE: {score:06d}",
-            self.font,
             COLOR_MENU_TEXT,
-            370,
+            font=self.font,
         )
 
-        self._center_text(
+        if bonus:
+
+            draw_text_centered(
+                surface,
+                f"TODOS ABATIDOS  +{bonus}",
+                370,
+                COLOR_MENU_SELECTED,
+                font=self.font,
+            )
+
+        draw_text_centered(
             surface,
-            "ENTER - SIGUIENTE RONDA",
-            self.small_font,
-            COLOR_MENU_SELECTED,
+            "ENTER PARA LA SIGUIENTE RONDA",
             500,
+            COLOR_MENU_SELECTED,
+            font=self.small_font,
         )
 
     # ======================================================================
@@ -203,80 +238,64 @@ class ScreenRenderer:
         surface,
         score,
         round_number,
+        bonus=0,
+        high_scores=None,
     ):
+        """Fin de partida con el resumen, el bonus y la posición en la tabla."""
 
-        self.draw_background(
-            surface
-        )
+        self.draw_background(surface)
 
-        self._center_text(
+        draw_text_centered(
             surface,
             "GAME OVER",
-            self.title_font,
-            (220, 70, 70),
             170,
+            COLOR_GAME_OVER,
+            font=self.title_font,
         )
 
-        self._center_text(
+        draw_text_centered(
             surface,
-            f"SCORE FINAL: {score:06d}",
-            self.font,
+            f"PUNTOS {score:06d}",
+            280,
             COLOR_MENU_TEXT,
-            300,
+            font=self.large_font,
         )
 
-        self._center_text(
+        draw_text_centered(
             surface,
-            f"RONDA: {round_number}",
-            self.font,
+            f"LLEGASTE A LA RONDA {round_number}",
+            330,
             COLOR_MENU_TEXT,
-            350,
+            font=self.font,
         )
 
-        self._center_text(
+        if bonus:
+
+            draw_text_centered(
+                surface,
+                f"BONUS {bonus:06d}",
+                380,
+                COLOR_MENU_SELECTED,
+                font=self.font,
+            )
+
+        self._draw_high_scores(
             surface,
-            "ENTER - VOLVER A JUGAR",
-            self.small_font,
+            high_scores,
+        )
+
+        draw_text_centered(
+            surface,
+            "ENTER PARA JUGAR OTRA VEZ",
+            WINDOW_HEIGHT - 76,
             COLOR_MENU_SELECTED,
-            500,
+            font=self.small_font,
         )
 
-        self._center_text(
+        draw_text_centered(
             surface,
-            "ESC - SALIR",
-            self.small_font,
+            "ESC PARA VOLVER AL MENU",
+            WINDOW_HEIGHT - 46,
             COLOR_MENU_TEXT,
-            540,
-        )
-
-    # ======================================================================
-    # Utilidades
-    # ======================================================================
-
-    def _center_text(
-        self,
-        surface,
-        text,
-        font,
-        color,
-        y,
-    ):
-
-        image = font.render(
-            text,
-            True,
-            color,
-        )
-
-        rect = image.get_rect()
-
-        rect.centerx = (
-            WINDOW_WIDTH // 2
-        )
-
-        rect.centery = y
-
-        surface.blit(
-            image,
-            rect,
+            font=self.small_font,
         )

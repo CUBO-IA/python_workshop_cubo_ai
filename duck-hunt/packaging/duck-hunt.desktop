@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Version=1.5
+Name=Duck Hunt
+GenericName=Cazar patos
+Comment=Recreación del clásico de NES: abate los patos antes de que escapen
+Exec=duck-hunt %f
+Icon=duck-hunt
+Terminal=false
+Categories=Game;ArcadeGame;
+Keywords=duck;hunt;game;arcade;patos;caza;
+StartupNotify=true
+StartupWMClass=duck-hunt

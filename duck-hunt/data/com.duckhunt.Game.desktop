@@ -1,10 +1,26 @@
+# Lanzador de escritorio para uso desde el repositorio.
+#
+# El paquete .deb y el AppImage instalan su propia copia en
+# /usr/share/applications, así que este fichero es para quien quiere abrir el
+# juego desde el menú sin instalar nada.
+#
+# En ese caso hay que poner aquí la ruta absoluta al lanzador del proyecto,
+# porque los ficheros .desktop no aceptan rutas relativas:
+#
+#   Exec=/home/TU_USUARIO/ruta/al/proyecto/duck-hunt/bin/duck-hunt
+#
+# Tal y como está, funciona cuando el juego ya está instalado y `duck-hunt`
+# está en el PATH.
 [Desktop Entry]
+Type=Application
+Version=1.5
 Name=Duck Hunt
-Comment=Juego clásico de caza de patos
-Exec=duck-hunt
+GenericName=Cazar patos
+Comment=Recreación del clásico de NES: abate los patos antes de que escapen
+Exec=duck-hunt %f
 Icon=duck-hunt
 Terminal=false
-Type=Application
-Categories=Game;Arcade;
+Categories=Game;ArcadeGame;
+Keywords=duck;hunt;game;arcade;patos;caza;
 StartupNotify=true
 StartupWMClass=duck-hunt

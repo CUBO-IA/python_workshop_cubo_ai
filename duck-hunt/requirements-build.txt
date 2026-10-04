@@ -1,0 +1,8 @@
+# Dependencias para construir los paquetes de Linux.
+#
+# Son las mismas que requirements-dev.txt, pero en un fichero aparte para que
+# el entorno de compilación (PyInstaller y flatpak-builder) no arrastre los
+# tests.
+-r requirements.txt
+
+pyinstaller>=6.0

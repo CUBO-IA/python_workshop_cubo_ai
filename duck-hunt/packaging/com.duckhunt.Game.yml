@@ -1,0 +1,59 @@
+app-id: com.duckhunt.Game
+runtime: org.freedesktop.Platform
+runtime-version: '26.08'
+sdk: org.freedesktop.Sdk//26.08
+command: duck-hunt
+
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  # Sin esto el mixer de SDL no encuentra ninguna salida de audio.
+  - --socket=pulseaudio
+
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /share/man
+
+modules:
+  - name: duck-hunt
+    buildsystem: simple
+
+    # ---------------------------------------------------------------------
+    # Por qué este módulo solo copia
+    #
+    # El SDK de freedesktop lleva Python 3.14, para el que pygame no publica
+    # rueda, y dentro del sandbox de compilación no hay red para descargar
+    # una. Compilar el juego aquí dentro no es viable.
+    #
+    # La solución es empaquetar el binario que produce PyInstaller, que ya
+    # lleva dentro el intérprete, pygame y los recursos. Se compila antes,
+    # fuera del sandbox, con scripts/build.sh binary.
+    #
+    # El precio es que este manifiesto no es reproducible desde el código
+    # fuente por sí solo: necesita el binario previo. Para publicar en
+    # Flathub haria falta un SDK con Python 3.13.
+    # ---------------------------------------------------------------------
+    build-commands:
+      - install -Dm0755 dist/duck-hunt /app/bin/duck-hunt
+      - install -Dm0644 packaging/duck-hunt.desktop /app/share/applications/duck-hunt.desktop
+      - install -Dm0644 assets/icons/duck-hunt.png /app/share/icons/hicolor/128x128/apps/duck-hunt.png
+      - install -Dm0644 packaging/duck-hunt.svg /app/share/icons/hicolor/scalable/apps/duck-hunt.svg
+      - install -Dm0644 packaging/duck-hunt.appdata.xml /app/share/metainfo/duck-hunt.appdata.xml
+      - install -Dm0644 README.md /app/share/doc/duck-hunt/README.md
+
+    sources:
+      - type: dir
+        path: ..
+        skip:
+          - .venv
+          - build
+          - build-flatpak
+          - .flatpak-builder
+          - .git
+          - '*.pyc'
+          - __pycache__
+          - tools/preview_assets.html
+          - tools/preview_shots.html

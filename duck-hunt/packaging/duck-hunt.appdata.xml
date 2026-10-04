@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.duckhunt.Game</id>
+
+  <name>Duck Hunt</name>
+
+  <summary>Abate los patos antes de que escapen</summary>
+
+  <metadata_license>CC0-1.0</metadata_license>
+
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <developer id="com.duckhunt">
+    <name>Taller Python</name>
+  </developer>
+
+  <description>
+    <p>
+      Recreación del clásico de Nintendo Entertainment System. Los patos
+      cruzan el cielo y hay que abatirlos con la mira antes de que se escapen,
+      así que cada tiro tiene que contar.
+    </p>
+    <p>Reglas:</p>
+    <ul>
+      <li>Diez patos por ronda y hay que abatir seis para pasar.</li>
+      <li>Tres disparos por pato: si se fallan los tres, se escapa.</li>
+      <li>Desde la ronda 11 vuelan dos patos a la vez, y desde la 21, tres.</li>
+      <li>Abatir los diez da bonus de ronda perfecta.</li>
+      <li>Al terminar se suma un bonus por cada disparo sin usar.</li>
+    </ul>
+    <p>
+      El perro da el veredicto de cada pato: salta y celebra cuando lo
+      abates y se ríe cuando se te escapa.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">duck-hunt.desktop</launchable>
+
+  <categories>
+    <category>Game</category>
+    <category>ArcadeGame</category>
+  </categories>
+
+  <keywords>
+    <keyword>duck</keyword>
+    <keyword>hunt</keyword>
+    <keyword>arcade</keyword>
+    <keyword>game</keyword>
+  </keywords>
+
+  <provides>
+    <binary>duck-hunt</binary>
+  </provides>
+
+  <content_rating type="oars-1.1"/>
+
+  <releases>
+    <release version="1.0.0" date="2026-10-04">
+      <description>
+        <p>
+          Primera versión completa: arte y sonido generados por código,
+          física de vuelo y caída, rondas al estilo del NES, récords
+          persistentes y paquetes para Linux.
+        </p>
+      </description>
+    </release>
+  </releases>
+</component>

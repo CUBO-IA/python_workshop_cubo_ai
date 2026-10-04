@@ -1,0 +1,11 @@
+# Dependencias de desarrollo de Duck Hunt.
+#
+# El juego en sí solo necesita pygame (requirements.txt). Aquí van las
+# herramientas para ejecutar los tests y para construir los paquetes de Linux.
+-r requirements.txt
+
+# Tests.
+pytest>=8.0
+
+# Empaquetado en un binario autocontenido.
+pyinstaller>=6.0

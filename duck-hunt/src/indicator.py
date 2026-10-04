@@ -39,6 +39,7 @@ class DuckHuntIndicator:
         on_show_game,
         on_pause_game,
         on_quit,
+        on_mute_game=None,
     ):
 
         self.available = (
@@ -48,8 +49,11 @@ class DuckHuntIndicator:
         self.on_show_game = on_show_game
         self.on_pause_game = on_pause_game
         self.on_quit = on_quit
+        self.on_mute_game = on_mute_game
 
         self.paused = False
+
+        self.muted = False
 
         self.indicator = None
 
@@ -116,6 +120,19 @@ class DuckHuntIndicator:
             self.pause_item
         )
 
+        self.mute_item = Gtk.MenuItem(
+            label="Silenciar",
+        )
+
+        self.mute_item.connect(
+            "activate",
+            lambda _widget: self._on_mute_activated(),
+        )
+
+        menu.append(
+            self.mute_item
+        )
+
         quit_item = Gtk.MenuItem(
             label="Salir",
         )
@@ -150,10 +167,74 @@ class DuckHuntIndicator:
 
             return
 
+        label = ""
+
+        if self.paused:
+
+            label = "Pausado"
+
+        elif self.muted:
+
+            label = "Silenciado"
+
         self.indicator.set_label(
-            "Pausado" if paused else "",
+            label,
             "",
         )
+
+        self._sync_pause_item()
+
+    def set_muted(self, muted):
+        """Refleja el estado del silencio en el menú de la bandeja."""
+
+        self.muted = muted
+
+        if not self.available:
+
+            return
+
+        label = "Activar sonido" if muted else "Silenciar"
+
+        try:
+
+            self.mute_item.set_label(label)
+
+            self.mute_item.set_sensitive(not muted)
+
+        except (AttributeError, TypeError):
+
+            pass
+
+        if not self.paused:
+
+            self.indicator.set_label(
+                "Silenciado" if muted else "",
+                "",
+            )
+
+    def _on_mute_activated(self):
+        """Callback del elemento de menú que silencia el audio."""
+
+        if hasattr(self, "on_mute_game"):
+
+            self.on_mute_game()
+
+    def _sync_pause_item(self):
+        """Actualiza la etiqueta del elemento de pausa."""
+
+        if not self.available:
+
+            return
+
+        try:
+
+            self.pause_item.set_label(
+                "Reanudar" if self.paused else "Pausar"
+            )
+
+        except (AttributeError, TypeError):
+
+            pass
 
     def show(self):
 

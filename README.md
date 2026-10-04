@@ -252,13 +252,22 @@ y los patos vuelan cada vez más rápido.
 
 ### Características
 
-- Ventana de 960×720 a 60 FPS. Los patos usan sprites animados y el perro se
-  dibuja por código (ver "Assets ausentes" más abajo).
-- Perder la ronda por fallar ya es parte del juego: el perro se ríe.
-- Puntuación de 100 por pato, y mejores puntuaciones en
-  `data/high_scores.json`.
+- Ventana de 960×720 a 60 FPS, con los patos animados de tres fotogramas y el
+  perro saltando en un arco parabólico cuando reacciona a cada pato.
+- Reglas del original: diez patos por ronda, seis aciertos para pasar, tres
+  disparos por pato y un bonus si los abates todos. Desde la ronda 11 vuelan
+  dos patos a la vez, y desde la 21, tres.
+- Física real: los patos rebotan contra el techo, escapan al salir de la
+  pantalla y al recibir un tiro caen con gravedad mientras giran.
+- Los patos pasan por detrás del matorral, como en el juego de NES.
+- Todo el arte y el sonido están generados por `tools/generate_assets.py`, que
+  los compone con pygame y con la biblioteca estándar: no hay ni un solo
+  fichero hecho a mano, ni una fuente TTF de terceros.
+- Puntuación de 100 por pato y mejores puntuaciones guardadas en
+  `~/.local/share/duck-hunt/` (siguiendo XDG).
 - Integración con GNOME: ventana, pausa y salida desde el ciclo de vida de GTK.
-- Indicador en la bandeja del sistema con mostrar, pausar y salir.
+- Indicador en la bandeja del sistema con mostrar, pausar, silenciar y salir.
+- Pausa con `F10`, silencio con `M` y pantalla completa con `F11`.
 
 ### Instalación
 
@@ -305,10 +314,13 @@ aplicaciones.
 | Acción | Tecla / ratón |
 | --- | --- |
 | Dispara | Clic izquierdo |
-| Empezar partida / siguiente ronda | `Enter` |
+| Elegir opción del menú | `↑` `↓` |
+| Empezar partida / siguiente ronda | `Enter` o `Espacio` |
 | Volver al menú | `Esc` |
 | Minimizar a la bandeja | `Esc` en el menú, o cerrar la ventana |
-| Pausa | `F10` |
+| Pausa | `F10` (o `Esc` para salir de la pausa) |
+| Silenciar | `M` |
+| Pantalla completa | `F11` |
 | Mostrar / salir desde la bandeja | Menú del indicador |
 
 > El cursor del ratón se oculta (`HIDE_MOUSE_CURSOR`), porque la mira es un
@@ -321,18 +333,24 @@ aplicaciones.
 ```
 run.py                      Punto de entrada; relanza en el venv si hace falta
 bin/duck-hunt               Lanzador en bash
+scripts/build.sh            Empaquetado para Linux (.deb, AppImage, Flatpak)
+tools/generate_assets.py    Genera sprites, fuente y sonidos
+tools/entrypoint.py         Entrada del binario congelado
 src/app.py                  Ventana, bucle principal, teclado y ratón
 src/game.py                 Reglas: rondas, puntuación y estados
 src/config.py               Todas las constantes (tamaño, tiempos, rondas)
-src/entities/               duck.py, dog.py, bullet.py
-src/screens/                menu.py, game_screen.py, round_complete.py, game_over.py
-src/ui/                     crosshair.py, hud.py, screens.py
+src/assets.py               Rutas, tanto en repo como en binario congelado
+src/sprites.py              Carga y recorte de imágenes
+src/high_scores.py          Persistencia de los récords
+src/entities/               duck.py, dog.py, grass.py, bullet.py
+src/ui/                     pixel_font.py, fonts.py, crosshair.py, hud.py, screens.py, text.py
 src/audio/sound_manager.py  Carga y reproducción de sonidos
 src/gnome_app.py            Integración con el ciclo de vida de GTK
 src/indicator.py            Indicador de bandeja (AppIndicator)
-src/system/                 app_indicator.py, desktop_entry.py
-assets/                     Imágenes, sonidos, fuente e icono
-data/high_scores.json       Mejores puntuaciones
+assets/                     Imágenes, sonidos, fuente e icono (generados)
+tests/                      Tests con SDL en modo dummy
+packaging/                  Metadatos de los paquetes de Linux
+data/com.duckhunt.Game.desktop
 ```
 
 ### Integración con GNOME: opcional a propósito
@@ -395,9 +413,13 @@ con pygame 2.6.1.
 │   ├── run.py                   ← punto de entrada
 │   ├── bin/duck-hunt            ← lanzador
 │   ├── requirements.txt
-│   ├── src/                     ← app, game, entities, screens, ui, audio, system
-│   ├── assets/                  ← imágenes, sonidos, fuente e icono
-│   ├── data/high_scores.json
+│   ├── scripts/build.sh         ← empaquetado para Linux
+│   ├── tools/                   ← generador de recursos y entrada del binario
+│   ├── src/                     ← app, game, entities, ui, audio
+│   ├── assets/                  ← imágenes, sonidos, fuente e icono (generados)
+│   ├── tests/                   ← tests de duck, game y entidades
+│   ├── packaging/               ← metadatos de los paquetes
+│   └── data/com.duckhunt.Game.desktop
 │   └── tests/                   ← test_duck.py, test_game.py (vacíos)
 └── desktop/                     ← andamiaje de scripts de creación
     └── create_project.py
@@ -435,20 +457,28 @@ Ninguno bloquea el estudio, pero conviene conocerlos:
 - **Los ejercicios de consola no se pueden probar con `</dev/null`.** Terminan
   con `EOFError`, porque `input()` no encuentra nada que leer. Es el
   comportamiento esperado, no un fallo del ejercicio.
-- **Los tests de Duck Hunt están vacíos.** `tests/test_duck.py` y
-  `tests/test_game.py` existen pero no tienen una sola línea. pytest tampoco
-  está en `requirements.txt`, así que `pytest tests` falla con
-  `No module named pytest`.
+- **Los tests de Duck Hunt están vacíos.** *(resuelto)* Ahora hay 78 tests que
+  cubren el vuelo y la caída del pato, el salto del perro, las reglas de ronda,
+  los bonus y los récords. Se ejecutan con `SDL_VIDEODRIVER=dummy`, sin abrir
+  ventana, y `pytest` está en `requirements-dev.txt`.
 - **El puerto 5808 de Coffee-bit está fijado en el código.** No viene de una
   variable de entorno, así que cambiarlo exige editar `app.py:183`. Ojo: el
   README de esa subcarpeta todavía menciona el puerto antiguo 5707.
-- **`duck-hunt/README.md` está vacío.** El juego se documenta solo aquí, en el
-  README raíz.
-- **Faltan los tres sprites del perro en Duck Hunt** (`dog_idle.png`,
-  `dog_happy.png`, `dog_laugh.png`). No rompen el juego porque `dog.py` genera
-  un *fallback* dibujado por código, pero el perro no se ve como se espera.
-  `assets/images/dog.png` existe y está sin usar.
+- **`duck-hunt/README.md` estaba vacío.** *(resuelto)* El juego se documenta
+  ahora también en su propia carpeta.
+- **Faltaban los tres sprites del perro en Duck Hunt.** *(resuelto)*
+  `tools/generate_assets.py` genera `dog_idle.png`, `dog_happy.png` y
+  `dog_laugh.png`, además del resto de sprites, de la fuente de píxeles y de
+  los once sonidos. Todos los ficheros de `assets/` que estaban a cero bytes
+  han desaparecido.
+- **El Flatpak de Duck Hunt no viene compilado.** El manifiesto está escrito y
+  pasa el linter de Flathub, pero la compilación necesita que
+  `flatpak-builder` vea el SDK, y desde la instalación de usuario no lo ve.
+  El `.deb` y el AppImage sí están compilados y verificados. Está explicado en
+  `duck-hunt/README.md`.
 - **Duck Hunt necesita GTK del sistema y pygame del venv, y no conviven.**
   PyGObject solo existe para el intérprete del sistema, así que la integración
   con la bandeja y con el ciclo de vida de GNOME es opcional por diseño: el
-  juego arranca igual sin ella, solo sin icono de bandeja.
+  juego arranca igual sin ella, solo sin icono de bandeja. El binario
+  congelado (`.deb` y AppImage) sí puede usarla, porque lleva su propio
+  Python.

@@ -1,53 +1,70 @@
 """
 Entidad Dog.
 
-Representa al perro que aparece después de cada pato.
+El perro es el que da el veredicto de cada pato: salta por encima de la hierba
+al abatirlo y se ríe cuando se le escapa. El salto es una parábola calculada a
+partir de la duración configurada, así que el arco no depende de la tasa de
+fotogramas.
 """
 
 from enum import Enum, auto
 
-import pygame
-
 from ..config import (
-    DOG_HEIGHT,
+    DOG_DISPLAY_TIME,
     DOG_HAPPY_SPRITE_FILE,
+    DOG_HEIGHT,
     DOG_IDLE_SPRITE_FILE,
+    DOG_JUMP_DURATION,
+    DOG_JUMP_HEIGHT,
+    DOG_LAUGH_DISPLAY_TIME,
     DOG_LAUGH_SPRITE_FILE,
     DOG_WIDTH,
-    DOG_X,
-    DOG_Y,
-    IMAGES_DIR,
+    WINDOW_HEIGHT,
+    WINDOW_WIDTH,
+)
+
+from ..sprites import (
+    load_image,
 )
 
 
 class DogState(Enum):
-    """
-    Estados del perro.
-    """
+    """Estados del perro."""
+
+    HIDDEN = auto()
+
+    JUMPING = auto()
+
+    HAPPY = auto()
+
+    LAUGH = auto()
 
     IDLE = auto()
-    HAPPY = auto()
-    LAUGH = auto()
 
 
 class Dog:
-    """
-    Representa al perro del juego.
-    """
+    """Representa al perro del juego."""
 
     def __init__(self):
-
         self.width = DOG_WIDTH
+
         self.height = DOG_HEIGHT
 
-        self.x = DOG_X
-        self.y = DOG_Y
+        self.x = (WINDOW_WIDTH - self.width) // 2
 
-        self.state = DogState.IDLE
+        # Altura a la que el perro se apoya, sobre la hierba.
+        self.ground_y = WINDOW_HEIGHT - self.height - 18
+
+        self.y = float(self.ground_y)
+
+        self.state = DogState.HIDDEN
 
         self.timer = 0.0
 
-        self.images = {}
+        # Fase del salto, de 0 a 1.
+        self.jump_phase = 0.0
+
+        self._pose_for_jump = DogState.HAPPY
 
         self._load_images()
 
@@ -56,246 +73,78 @@ class Dog:
     # ======================================================================
 
     def _load_images(self):
+        """Carga los tres sprites, tolerando que falte alguno."""
 
-        self.images[
-            DogState.IDLE
-        ] = self._load_image(
-            DOG_IDLE_SPRITE_FILE,
-            self._create_idle_fallback,
-        )
-
-        self.images[
-            DogState.HAPPY
-        ] = self._load_image(
-            DOG_HAPPY_SPRITE_FILE,
-            self._create_happy_fallback,
-        )
-
-        self.images[
-            DogState.LAUGH
-        ] = self._load_image(
-            DOG_LAUGH_SPRITE_FILE,
-            self._create_laugh_fallback,
-        )
-
-    def _load_image(
-        self,
-        filename,
-        fallback,
-    ):
-
-        path = (
-            IMAGES_DIR
-            / filename
-        )
-
-        if path.exists():
-
-            try:
-
-                image = pygame.image.load(
-                    path
-                ).convert_alpha()
-
-                return pygame.transform.smoothscale(
-                    image,
-                    (
-                        self.width,
-                        self.height,
-                    ),
-                )
-
-            except pygame.error:
-                pass
-
-        return fallback()
-
-    # ======================================================================
-    # Fallbacks
-    # ======================================================================
-
-    def _create_idle_fallback(self):
-
-        return self._create_dog_sprite(
-            (160, 110, 60)
-        )
-
-    def _create_happy_fallback(self):
-
-        return self._create_dog_sprite(
-            (180, 130, 70)
-        )
-
-    def _create_laugh_fallback(self):
-
-        return self._create_dog_sprite(
-            (130, 90, 50)
-        )
-
-    def _create_dog_sprite(
-        self,
-        body_color,
-    ):
-
-        surface = pygame.Surface(
-            (
-                self.width,
-                self.height,
+        self.images = {
+            DogState.IDLE: load_image(
+                DOG_IDLE_SPRITE_FILE,
+                (self.width, self.height),
             ),
-            pygame.SRCALPHA,
-        )
-
-        center_x = (
-            self.width // 2
-        )
-
-        # Cuerpo
-        pygame.draw.ellipse(
-            surface,
-            body_color,
-            (
-                center_x - 40,
-                55,
-                80,
-                65,
+            DogState.HAPPY: load_image(
+                DOG_HAPPY_SPRITE_FILE,
+                (self.width, self.height),
             ),
-        )
-
-        # Cabeza
-        pygame.draw.circle(
-            surface,
-            body_color,
-            (
-                center_x,
-                45,
+            DogState.LAUGH: load_image(
+                DOG_LAUGH_SPRITE_FILE,
+                (self.width, self.height),
             ),
-            35,
-        )
-
-        # Orejas
-        pygame.draw.polygon(
-            surface,
-            body_color,
-            [
-                (
-                    center_x - 28,
-                    25,
-                ),
-                (
-                    center_x - 45,
-                    5,
-                ),
-                (
-                    center_x - 12,
-                    20,
-                ),
-            ],
-        )
-
-        pygame.draw.polygon(
-            surface,
-            body_color,
-            [
-                (
-                    center_x + 28,
-                    25,
-                ),
-                (
-                    center_x + 45,
-                    5,
-                ),
-                (
-                    center_x + 12,
-                    20,
-                ),
-            ],
-        )
-
-        # Ojos
-        pygame.draw.circle(
-            surface,
-            (255, 255, 255),
-            (
-                center_x - 12,
-                40,
-            ),
-            7,
-        )
-
-        pygame.draw.circle(
-            surface,
-            (255, 255, 255),
-            (
-                center_x + 12,
-                40,
-            ),
-            7,
-        )
-
-        pygame.draw.circle(
-            surface,
-            (0, 0, 0),
-            (
-                center_x - 12,
-                40,
-            ),
-            3,
-        )
-
-        pygame.draw.circle(
-            surface,
-            (0, 0, 0),
-            (
-                center_x + 12,
-                40,
-            ),
-            3,
-        )
-
-        # Hocico
-        pygame.draw.ellipse(
-            surface,
-            (90, 60, 40),
-            (
-                center_x - 18,
-                48,
-                36,
-                25,
-            ),
-        )
-
-        # Nariz
-        pygame.draw.circle(
-            surface,
-            (30, 20, 20),
-            (
-                center_x,
-                55,
-            ),
-            7,
-        )
-
-        return surface
+        }
 
     # ======================================================================
     # Estado
     # ======================================================================
 
+    @property
+    def visible(self):
+        """Indica si el perro debe dibujarse ahora mismo."""
+
+        return self.state != DogState.HIDDEN
+
+    @property
+    def height_above_ground(self):
+        """Altura actual del salto, en píxeles sobre el suelo."""
+
+        return self.ground_y - self.y
+
     def show_happy(self):
+        """El perro salta sobre la hierba para celebrar un pato abatido."""
 
-        self.state = DogState.HAPPY
-
-        self.timer = 0.0
+        self._start_jump(DogState.HAPPY)
 
     def show_laugh(self):
+        """El perro se ríe de un pato que se le escapó."""
 
-        self.state = DogState.LAUGH
+        self._start_jump(DogState.LAUGH)
+
+    def show_idle(self):
+        """El perro vuelve a su pose de reposo y se queda quieto."""
+
+        self.state = DogState.IDLE
 
         self.timer = 0.0
 
-    def show_idle(self):
+        self.y = float(self.ground_y)
 
-        self.state = DogState.IDLE
+    def hide(self):
+        """El perro desaparece de la pantalla."""
+
+        self.state = DogState.HIDDEN
+
+        self.timer = 0.0
+
+    def _start_jump(self, pose):
+        """
+        Lanza el salto con la pose indicada.
+
+        Si el perro ya estaba en pantalla, el nuevo salto lo reinicia: en el
+        juego original el perro reacciona al instante a cada pato.
+        """
+
+        self._pose_for_jump = pose
+
+        self.state = DogState.JUMPING
+
+        self.jump_phase = 0.0
 
         self.timer = 0.0
 
@@ -304,26 +153,86 @@ class Dog:
     # ======================================================================
 
     def update(self, delta_time):
+        """Avanza el salto o cuenta atrás de la pose."""
 
         self.timer += delta_time
+
+        if self.state == DogState.JUMPING:
+
+            self._update_jump(delta_time)
+
+            return
+
+        if self.state in (DogState.HAPPY, DogState.LAUGH):
+
+            if self.timer >= self._display_time():
+
+                self.hide()
+
+    def _display_time(self):
+        """Cuánto tiempo se mantiene la pose tras aterrizar."""
+
+        if self.state == DogState.LAUGH:
+
+            return DOG_LAUGH_DISPLAY_TIME
+
+        return DOG_DISPLAY_TIME
+
+    def _update_jump(self, delta_time):
+        """
+        Calcula la altura del salto.
+
+        La parábola sale de la fase normalizada del salto, de modo que el arco
+        es idéntico a 30 o a 144 FPS.
+        """
+
+        self.jump_phase += delta_time / DOG_JUMP_DURATION
+
+        if self.jump_phase >= 1.0:
+
+            self.jump_phase = 1.0
+
+            self.state = self._pose_for_jump
+
+            self.timer = 0.0
+
+            self.y = float(self.ground_y)
+
+            return
+
+        # 4·t·(1−t) vale 0 en los extremos y 1 en la mitad: es la parábola
+        # más barata que da un arco limpio.
+        arc = 4.0 * self.jump_phase * (1.0 - self.jump_phase)
+
+        self.y = self.ground_y - (DOG_JUMP_HEIGHT * arc)
 
     # ======================================================================
     # Render
     # ======================================================================
 
     def draw(self, surface):
+        """Dibuja el perro si está visible y hay sprite para su estado."""
 
-        image = self.images[
-            self.state
-        ]
+        if not self.visible:
 
-        rect = image.get_rect()
+            return
 
-        rect.x = self.x
+        image = self.images.get(self.state)
 
-        rect.y = self.y
+        if image is None and self.state == DogState.JUMPING:
+
+            image = self.images.get(self._pose_for_jump)
+
+        if image is None:
+
+            return
 
         surface.blit(
             image,
-            rect,
+            image.get_rect(
+                topleft=(
+                    int(self.x),
+                    int(self.y),
+                )
+            ),
         )

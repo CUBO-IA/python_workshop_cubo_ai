@@ -1,0 +1,246 @@
+{
+  "glyph_width": 5,
+  "glyph_height": 7,
+  "cell_width": 6,
+  "cell_height": 8,
+  "columns": 16,
+  "rows": 4,
+  "glyphs": {
+    " ": {
+      "column": 0,
+      "row": 0
+    },
+    "!": {
+      "column": 1,
+      "row": 0
+    },
+    "%": {
+      "column": 2,
+      "row": 0
+    },
+    "'": {
+      "column": 3,
+      "row": 0
+    },
+    "(": {
+      "column": 4,
+      "row": 0
+    },
+    ")": {
+      "column": 5,
+      "row": 0
+    },
+    "*": {
+      "column": 6,
+      "row": 0
+    },
+    "+": {
+      "column": 7,
+      "row": 0
+    },
+    ",": {
+      "column": 8,
+      "row": 0
+    },
+    "-": {
+      "column": 9,
+      "row": 0
+    },
+    ".": {
+      "column": 10,
+      "row": 0
+    },
+    "/": {
+      "column": 11,
+      "row": 0
+    },
+    "0": {
+      "column": 12,
+      "row": 0
+    },
+    "1": {
+      "column": 13,
+      "row": 0
+    },
+    "2": {
+      "column": 14,
+      "row": 0
+    },
+    "3": {
+      "column": 15,
+      "row": 0
+    },
+    "4": {
+      "column": 0,
+      "row": 1
+    },
+    "5": {
+      "column": 1,
+      "row": 1
+    },
+    "6": {
+      "column": 2,
+      "row": 1
+    },
+    "7": {
+      "column": 3,
+      "row": 1
+    },
+    "8": {
+      "column": 4,
+      "row": 1
+    },
+    "9": {
+      "column": 5,
+      "row": 1
+    },
+    ":": {
+      "column": 6,
+      "row": 1
+    },
+    "<": {
+      "column": 7,
+      "row": 1
+    },
+    "=": {
+      "column": 8,
+      "row": 1
+    },
+    ">": {
+      "column": 9,
+      "row": 1
+    },
+    "?": {
+      "column": 10,
+      "row": 1
+    },
+    "A": {
+      "column": 11,
+      "row": 1
+    },
+    "B": {
+      "column": 12,
+      "row": 1
+    },
+    "C": {
+      "column": 13,
+      "row": 1
+    },
+    "D": {
+      "column": 14,
+      "row": 1
+    },
+    "E": {
+      "column": 15,
+      "row": 1
+    },
+    "F": {
+      "column": 0,
+      "row": 2
+    },
+    "G": {
+      "column": 1,
+      "row": 2
+    },
+    "H": {
+      "column": 2,
+      "row": 2
+    },
+    "I": {
+      "column": 3,
+      "row": 2
+    },
+    "J": {
+      "column": 4,
+      "row": 2
+    },
+    "K": {
+      "column": 5,
+      "row": 2
+    },
+    "L": {
+      "column": 6,
+      "row": 2
+    },
+    "M": {
+      "column": 7,
+      "row": 2
+    },
+    "N": {
+      "column": 8,
+      "row": 2
+    },
+    "O": {
+      "column": 9,
+      "row": 2
+    },
+    "P": {
+      "column": 10,
+      "row": 2
+    },
+    "Q": {
+      "column": 11,
+      "row": 2
+    },
+    "R": {
+      "column": 12,
+      "row": 2
+    },
+    "S": {
+      "column": 13,
+      "row": 2
+    },
+    "T": {
+      "column": 14,
+      "row": 2
+    },
+    "U": {
+      "column": 15,
+      "row": 2
+    },
+    "V": {
+      "column": 0,
+      "row": 3
+    },
+    "W": {
+      "column": 1,
+      "row": 3
+    },
+    "X": {
+      "column": 2,
+      "row": 3
+    },
+    "Y": {
+      "column": 3,
+      "row": 3
+    },
+    "Z": {
+      "column": 4,
+      "row": 3
+    },
+    "_": {
+      "column": 5,
+      "row": 3
+    },
+    "·": {
+      "column": 6,
+      "row": 3
+    },
+    "É": {
+      "column": 7,
+      "row": 3
+    },
+    "Í": {
+      "column": 8,
+      "row": 3
+    },
+    "Ñ": {
+      "column": 9,
+      "row": 3
+    },
+    "Ó": {
+      "column": 10,
+      "row": 3
+    }
+  }
+}
